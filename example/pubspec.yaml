@@ -12,8 +12,6 @@ dependencies:
   flutter_blue_plus: ^1.17.0
   get: ^4.6.5
   file_picker: ^5.5.0
-  
-
   nordic_dfu:
     path: ../
   permission_handler: ^11.0.1
