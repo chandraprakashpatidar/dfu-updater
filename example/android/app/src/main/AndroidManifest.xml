@@ -10,6 +10,9 @@ xmlns:tools="http://schemas.android.com/tools">
 <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"
    android:usesPermissionFlags="neverForLocation" />
+
+   <uses-permission android:name="android.permission.BLUETOOTH" />
+
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
 

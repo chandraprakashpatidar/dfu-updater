@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:nordic_dfu/nordic_dfu.dart';
 import 'package:file_picker/file_picker.dart';
+
+
 
 void main() => runApp(const MyApp());
 
@@ -34,14 +35,18 @@ class _MyAppInternalState extends State<MyAppInternal> {
   int? dfuRunningInx;
   double dfuProgress = 0.0;
 
+
  Future<void> doDfu(String deviceId) async {
   print("Start DFU");
 
   // Show the start DFU dialog
-  showStartDfuMessage();
+  //showStartDfuMessage();
 
   stopScan();
   dfuRunning = true;
+ 
+
+ enableBluetooth();
 
   try {
     // Show the file picker dialog
@@ -52,6 +57,7 @@ class _MyAppInternalState extends State<MyAppInternal> {
 
     // Check if the user selected a file
     print('dddddddddddddddddddddddddddddddd');
+    
     if (result != null) {
       File file = File(result.files.single.path!);
 
@@ -78,12 +84,13 @@ class _MyAppInternalState extends State<MyAppInternal> {
           });
 
           debugPrint('Device Address: $deviceAddress, Percent: $percent');
-
+print("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww,$percent");
           if (percent == 100) {
             // Firmware update complete
 
             // Close the progress dialog when the update is complete
             Navigator.of(context).pop();
+             showDfuCompletionMessage();
           }
         },
       );
@@ -96,6 +103,21 @@ class _MyAppInternalState extends State<MyAppInternal> {
     dfuRunning = false;
   } catch (e) {
     dfuRunning = false;
+
+
+
+
+     if ( e == '4106') {
+      // Display a user-friendly message about Bluetooth being disabled
+      // You may also prompt the user to enable Bluetooth here.
+      print('DFU failed: Bluetooth adapter is disabled.');
+    } else {
+      // Handle other exceptions
+      debugPrint('DFU failed with an unexpected error: $e');
+
+      // Show error dialog
+      showErrorDialog(e.toString());
+    }
     debugPrint(e.toString());
 
     // Show error dialog
@@ -103,14 +125,14 @@ class _MyAppInternalState extends State<MyAppInternal> {
   }
 }
 
-// Function to show the start DFU dialog
-void showStartDfuMessage() {
+
+void showDfuCompletionMessage() {
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('DFU Started'),
-        content: Text('Device Firmware Update process has started.'),
+        title: Text('DFU Completed'),
+        content: Text('Device Firmware Update process has completed.'),
         actions: <Widget>[
           TextButton(
             onPressed: () {
@@ -124,7 +146,6 @@ void showStartDfuMessage() {
   );
 }
 
-// Function to show the progress dialog
 void showProgressDialog() {
   showDialog(
     context: context,
@@ -138,7 +159,7 @@ void showProgressDialog() {
             Text('Firmware update in progress...'),
             SizedBox(height: 16),
             LinearProgressIndicator(
-              value: dfuProgress / 100.0,
+              value: dfuProgress / 100.0, // This assumes dfuProgress is a percentage from 0 to 100
               minHeight: 20,
             ),
             SizedBox(height: 16),
@@ -225,9 +246,47 @@ void showErrorDialog(String errorMessage) {
   //   );
   // }
 
+
+
+
+Future<void> enableBluetooth() async {
+  print("rrrrrrrrrrrrrrrrr");
+  // Check if Bluetooth is supported on the device
+  bool isSupported = await FlutterBluePlus.isSupported;
+
+  if (isSupported) {
+    // Check if Bluetooth is currently turned on
+    bool isOn = await FlutterBluePlus.isOn;
+    print("onnnnnnnnnnnnn,$isOn");
+
+    if (!isOn) {
+      // If Bluetooth is not enabled, request the user to enable it
+      print('Bluetooth is not enabled. Please enable Bluetooth in device settings.');
+    }
+  } else {
+    // Handle the case where Bluetooth is not supported on the device
+    print("Bluetooth is not supported on this device");
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   FlutterBluePlus flutterBlue = FlutterBluePlus();
 
   void startScan() async {
+    print("ssssssssssssssssssss");
+   
     print("Start Scanning");
 
     try {
